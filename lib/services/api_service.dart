@@ -1,10 +1,9 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiService {
-  final String baseUrl;
-
-  ApiService({required this.baseUrl});
+  final String baseUrl = dotenv.env['API_BASE_URL'] ?? '';
 
   Future<dynamic> get(String endpoint) async {
     final response = await http.get(Uri.parse('$baseUrl$endpoint'));

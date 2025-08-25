@@ -4,6 +4,7 @@ import 'package:english_words/english_words.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -48,7 +49,7 @@ Future<void> main() async {
   });
 
   getToken();
-
+  await dotenv.load();
   runApp(const MyApp());
 }
 
