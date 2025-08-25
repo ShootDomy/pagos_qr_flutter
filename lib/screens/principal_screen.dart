@@ -19,9 +19,50 @@ class PrincipalScreen extends StatefulWidget {
 // ...existing code...
 
 class _PrincipalScreenState extends State<PrincipalScreen> {
+  String? nombre;
+  String? apellido;
+
+  Future<void> _cargarDatosUsuario() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      nombre = prefs.getString('usuNombre');
+      apellido = prefs.getString('usuApellido');
+    });
+
+    debugPrint(
+      "Datos del usuario: ${prefs.getString('usuNombre')} ${prefs.getString('usuApellido')}",
+    );
+  }
+
+  void _cerrarSesion() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Cerrar sesión'),
+        content: const Text('¿Estás seguro que deseas cerrar sesión?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Cerrar sesión'),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+      Navigator.of(context).pushReplacementNamed('/');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    _cargarDatosUsuario();
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       AwesomeNotifications().createNotification(
         content: NotificationContent(
@@ -51,12 +92,27 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Principal')),
+      appBar: AppBar(
+        title: const Text('Principal'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Cerrar sesión',
+            onPressed: _cerrarSesion,
+          ),
+        ],
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('Bienvenido al gestor de códigos QR'),
+            Text(
+              nombre != null && apellido != null
+                  ? 'Bienvenido $nombre $apellido'
+                  : 'Bienvenido al gestor de códigos QRasdsa',
+              style: const TextStyle(fontSize: 18),
+            ),
+
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _abrirScanner,
@@ -95,6 +151,9 @@ class _ScannerFullScreenState extends State<ScannerFullScreen> {
   }
 
   Future<void> _procesarCodigo(String code) async {
+    final prefs = await SharedPreferences.getInstance();
+    final usuUuid = prefs.getString('usuUuid') ?? '';
+
     if (_procesandoCodigo) return;
     setState(() => _procesandoCodigo = true);
 
@@ -117,8 +176,6 @@ class _ScannerFullScreenState extends State<ScannerFullScreen> {
     }
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final usuUuid = prefs.getString('usuUuid') ?? '';
       final tokenUsuario = await FirebaseMessaging.instance.getToken();
 
       final transaccion = TransaccionRequest(

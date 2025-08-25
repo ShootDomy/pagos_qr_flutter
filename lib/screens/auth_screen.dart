@@ -45,6 +45,15 @@ class AuthScreenState extends State<AuthScreen> {
         await prefs.setString('usuUuid', usuUuid);
       }
 
+      final usuNombre = decodedToken['usuNombre'];
+      final usuApellido = decodedToken['usuApellido'];
+      if (usuNombre != null) {
+        await prefs.setString('usuNombre', usuNombre);
+      }
+      if (usuApellido != null) {
+        await prefs.setString('usuApellido', usuApellido);
+      }
+
       // Redirigir a la página principal
       if (mounted) {
         Navigator.pushReplacement(
