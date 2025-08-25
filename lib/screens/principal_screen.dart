@@ -5,6 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/transaccion_request.dart';
 import '../services/api_service.dart';
 import '../services/transaccion_service.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 class PrincipalScreen extends StatefulWidget {
   const PrincipalScreen({super.key});
@@ -13,7 +16,24 @@ class PrincipalScreen extends StatefulWidget {
   State<PrincipalScreen> createState() => _PrincipalScreenState();
 }
 
+// ...existing code...
+
 class _PrincipalScreenState extends State<PrincipalScreen> {
+  @override
+  void initState() {
+    super.initState();
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+          channelKey: 'basic_channel',
+          title: message.notification?.title ?? 'Título',
+          body: message.notification?.body ?? 'Contenido',
+        ),
+      );
+    });
+  }
+
   void _abrirScanner() async {
     // Abrimos la pantalla del scanner y esperamos un mensaje de retorno
     final mensaje = await Navigator.of(context).push<String>(
@@ -99,14 +119,14 @@ class _ScannerFullScreenState extends State<ScannerFullScreen> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final usuUuid = prefs.getString('usuUuid') ?? '';
-      final tokenUsuario = prefs.getString('tokenDispositivo') ?? '';
+      final tokenUsuario = await FirebaseMessaging.instance.getToken();
 
       final transaccion = TransaccionRequest(
         traUuid: data['traUuid'],
         usuUuid: usuUuid,
         traMetodoPago: 'WALLET',
         traAmount: data['traAmount'],
-        tokenUsuario: tokenUsuario,
+        tokenUsuario: tokenUsuario ?? '',
       );
 
       final service = TransaccionService(apiService: ApiService());

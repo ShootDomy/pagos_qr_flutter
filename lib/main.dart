@@ -38,14 +38,10 @@ Future<void> main() async {
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
+  // Listener para mensajes en primer plano (debug)
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        channelKey: 'basic_channel',
-        title: message.notification?.title ?? 'Título',
-        body: message.notification?.body ?? 'Contenido',
-      ),
+    debugPrint(
+      '🔔 Mensaje recibido en primer plano: ${message.notification?.title} - ${message.notification?.body}',
     );
   });
 
