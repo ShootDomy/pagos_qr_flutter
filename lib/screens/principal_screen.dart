@@ -8,6 +8,7 @@ import '../services/transaccion_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
+import '../utils/colors.dart';
 
 class PrincipalScreen extends StatefulWidget {
   const PrincipalScreen({super.key});
@@ -93,10 +94,20 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Principal'),
+        backgroundColor: const Color(0xFF897DEE),
+        title: Row(
+          children: [
+            Image.asset('assets/logo.png', fit: BoxFit.cover, height: 70),
+            const SizedBox(width: 12),
+            const Text(
+              'Principal',
+              style: TextStyle(fontSize: 20, color: kFieldColor),
+            ),
+          ],
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout, color: kFieldColor),
             tooltip: 'Cerrar sesión',
             onPressed: _cerrarSesion,
           ),
@@ -112,11 +123,47 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
                   : 'Bienvenido al gestor de códigos QRasdsa',
               style: const TextStyle(fontSize: 18),
             ),
+            Text("Tu saldo actual es de:"),
 
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _abrirScanner,
-              child: const Text('Escanear código QR'),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 32.0,
+              ), // Ajusta el valor según prefieras
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(
+                    Icons.qr_code_scanner,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                  label: const Text(
+                    'Escanear código QR',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.1,
+                      color: Colors.white,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: kPrimaryColor,
+                    foregroundColor: Colors.white,
+                    elevation: 6,
+                    shadowColor: Colors.black38,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 18,
+                      horizontal: 24,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  onPressed: _abrirScanner,
+                ),
+              ),
             ),
           ],
         ),
