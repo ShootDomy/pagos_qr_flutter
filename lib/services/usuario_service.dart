@@ -5,11 +5,11 @@ class UsuarioService {
 
   UsuarioService({required this.apiService});
 
-  Future<dynamic> getUsuario(String id) async {
-    return await apiService.get('/usuarios/$id');
-  }
-
-  Future<dynamic> createUsuario(Map<String, dynamic> data) async {
-    return await apiService.post('/usuarios', data);
+  // AUTENTICACIÓN
+  Future<dynamic> iniciarSesion(String usuCorreo, String usuContrasena) async {
+    return await apiService.post('/usuario/auth/inicio', {
+      'usuCorreo': usuCorreo,
+      'usuContrasena': usuContrasena,
+    });
   }
 }
