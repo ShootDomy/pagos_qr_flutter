@@ -1,10 +1,19 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.comercio.pagos_qr_flutter">
+
+    <!-- Permisos -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+    <!-- Declarar que la app usa cámara -->
+    <uses-feature android:name="android.hardware.camera.any" android:required="true"/>
 
     <application
         android:label="pagos_qr_flutter"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-        
+
         <!-- Firebase y Awesome Notifications requieren permisos -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
@@ -40,10 +49,6 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
-
-    <!-- Permissions requeridos por Firebase y Awesome Notifications -->
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <!-- Required to query activities that can process text -->
     <queries>

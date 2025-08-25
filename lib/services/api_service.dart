@@ -15,15 +15,40 @@ class ApiService {
   }
 
   Future<dynamic> post(String endpoint, Map<String, dynamic> data) async {
+    return await postWithHeaders(endpoint, data);
+  }
+
+  Future<dynamic> postWithHeaders(
+    String endpoint,
+    Map<String, dynamic> data, {
+    Map<String, String>? headers,
+  }) async {
+    final defaultHeaders = {'Content-Type': 'application/json'};
+    final mergedHeaders = headers != null
+        ? {...defaultHeaders, ...headers}
+        : defaultHeaders;
     final response = await http.post(
       Uri.parse('$baseUrl$endpoint'),
-      headers: {'Content-Type': 'application/json'},
+      headers: mergedHeaders,
       body: jsonEncode(data),
     );
     if (response.statusCode == 200 || response.statusCode == 201) {
       return jsonDecode(response.body);
     } else {
-      throw Exception('Error: ${response.statusCode}');
+      String errorMsg = 'Error: ${response.statusCode}';
+      if (response.body.isNotEmpty) {
+        try {
+          final errorJson = jsonDecode(response.body);
+          if (errorJson is Map && errorJson.containsKey('message')) {
+            errorMsg = errorJson['message'];
+          } else {
+            errorMsg = response.body;
+          }
+        } catch (_) {
+          errorMsg = response.body;
+        }
+      }
+      throw Exception(errorMsg);
     }
   }
 }

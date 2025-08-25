@@ -3,6 +3,7 @@ import '../services/usuario_service.dart';
 import '../services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'principal_screen.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -36,13 +37,20 @@ class AuthScreenState extends State<AuthScreen> {
       final token = response['token'];
       await prefs.setString('token', token);
 
-      // Decodificar el JWT
+      // Decodificar el JWT y guardar usuUuid
       Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
       debugPrint('Datos decodificados del JWT: $decodedToken');
+      final usuUuid = decodedToken['usuUuid'];
+      if (usuUuid != null) {
+        await prefs.setString('usuUuid', usuUuid);
+      }
 
       // Redirigir a la página principal
       if (mounted) {
-        Navigator.pushReplacementNamed(context, '/home');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => PrincipalScreen()),
+        );
       }
     } catch (e) {
       setState(() {
@@ -58,28 +66,33 @@ class AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Login')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _usuCorreoController,
-              decoration: InputDecoration(labelText: 'Correo'),
-            ),
-            TextField(
-              controller: _usuContrasenaController,
-              decoration: InputDecoration(labelText: 'Contraseña'),
-              obscureText: true,
-            ),
-            SizedBox(height: 20),
-            if (_error != null)
-              Text(_error!, style: TextStyle(color: Colors.red)),
-            ElevatedButton(
-              onPressed: _loading ? null : _inicioSesion,
-              child: _loading ? CircularProgressIndicator() : Text('Ingresar'),
-            ),
-          ],
+      appBar: AppBar(title: Text('Iniciar Sesión')),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextField(
+                controller: _usuCorreoController,
+                decoration: InputDecoration(labelText: 'Correo'),
+              ),
+              TextField(
+                controller: _usuContrasenaController,
+                decoration: InputDecoration(labelText: 'Contraseña'),
+                obscureText: true,
+              ),
+              SizedBox(height: 20),
+              if (_error != null)
+                Text(_error!, style: TextStyle(color: Colors.red)),
+              ElevatedButton(
+                onPressed: _loading ? null : _inicioSesion,
+                child: _loading
+                    ? CircularProgressIndicator()
+                    : Text('Ingresar'),
+              ),
+            ],
+          ),
         ),
       ),
     );
