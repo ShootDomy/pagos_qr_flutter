@@ -5,6 +5,8 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/auth_screen.dart';
 
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   debugPrint("📩 Mensaje en segundo plano: ${message.messageId}");
@@ -64,6 +66,7 @@ class MyApp extends StatelessWidget {
       ),
       home: AuthScreen(), // Pantalla de autenticación como inicial
       routes: {'/home': (context) => Placeholder()},
+      navigatorObservers: [routeObserver],
     );
   }
 }

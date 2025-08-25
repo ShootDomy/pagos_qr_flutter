@@ -1,14 +1,16 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:pagos_qr_flutter/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/transaccion_request.dart';
 import '../services/api_service.dart';
 import '../services/transaccion_service.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import '../utils/colors.dart';
+import '../services/cuenta_service.dart';
+import '../models/cuenta_request.dart';
 
 class PrincipalScreen extends StatefulWidget {
   const PrincipalScreen({super.key});
@@ -19,9 +21,11 @@ class PrincipalScreen extends StatefulWidget {
 
 // ...existing code...
 
-class _PrincipalScreenState extends State<PrincipalScreen> {
+class _PrincipalScreenState extends State<PrincipalScreen> with RouteAware {
   String? nombre;
   String? apellido;
+  double? saldo;
+  int? cueNumCuenta;
 
   Future<void> _cargarDatosUsuario() async {
     final prefs = await SharedPreferences.getInstance();
@@ -44,7 +48,10 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancelar'),
+            child: const Text(
+              'Cancelar',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
@@ -61,9 +68,51 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)! as PageRoute);
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    // Se llama cuando regresas a esta pantalla
+    _obtenerCuentaUsuario();
+  }
+
+  Future<void> _obtenerCuentaUsuario() async {
+    final cuentaService = CuentaService(apiService: ApiService());
+    final prefs = await SharedPreferences.getInstance();
+    final usuUuid = prefs.getString('usuUuid') ?? '';
+    final request = CuentaRequest(usuUuid: usuUuid);
+
+    final resultado = await cuentaService.obtenerCuentaUsuario(request);
+
+    debugPrint('Resultado cuenta: $resultado');
+    debugPrint('cueSaldo recibido: ${resultado['cueSaldo']}');
+
+    setState(() {
+      saldo = resultado['cueSaldo'] != null
+          ? double.tryParse(resultado['cueSaldo'].toString())
+          : null;
+
+      cueNumCuenta = resultado['cueNumCuenta'] != null
+          ? int.tryParse(resultado['cueNumCuenta'].toString())
+          : null;
+    });
+  }
+
+  @override
   void initState() {
     super.initState();
     _cargarDatosUsuario();
+    _obtenerCuentaUsuario();
+
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       AwesomeNotifications().createNotification(
         content: NotificationContent(
@@ -88,6 +137,8 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
         context,
       ).showSnackBar(SnackBar(content: Text(mensaje)));
     }
+
+    await _obtenerCuentaUsuario();
   }
 
   @override
@@ -119,11 +170,115 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
           children: [
             Text(
               nombre != null && apellido != null
-                  ? 'Bienvenido $nombre $apellido'
-                  : 'Bienvenido al gestor de códigos QRasdsa',
-              style: const TextStyle(fontSize: 18),
+                  ? '¡Bienvenido/a, $nombre $apellido!'
+                  : 'Bienvenido/a al gestor de códigos QR',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: kPrimaryColor,
+                letterSpacing: 1.2,
+                shadows: [
+                  Shadow(
+                    color: Colors.black12,
+                    blurRadius: 4,
+                    offset: Offset(1, 2),
+                  ),
+                ],
+              ),
             ),
-            Text("Tu saldo actual es de:"),
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 24, horizontal: 32),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: kPrimaryColor, width: 2),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.account_balance_wallet,
+                        color: kPrimaryColor,
+                        size: 28,
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        "Detalles de tu cuenta",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: kPrimaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Divider(height: 24, thickness: 1),
+                  Row(
+                    children: [
+                      Icon(Icons.numbers, color: Colors.grey[700], size: 22),
+                      const SizedBox(width: 8),
+                      Text(
+                        "Número de cuenta:",
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      left: 30,
+                      top: 4,
+                      bottom: 12,
+                    ),
+                    child: Text(
+                      cueNumCuenta != null
+                          ? cueNumCuenta!.toString()
+                          : "No se ha podido cargar el número de cuenta",
+                      style: TextStyle(fontSize: 16, color: Colors.black87),
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.attach_money,
+                        color: Colors.green[700],
+                        size: 22,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        "Saldo actual:",
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 30, top: 4),
+                    child: Text(
+                      saldo != null
+                          ? "\$${saldo!.toStringAsFixed(2)}"
+                          : "No se ha podido cargar tu saldo",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: (saldo != null && saldo! <= 0)
+                            ? Colors.red
+                            : Colors.green,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
             const SizedBox(height: 16),
 
@@ -291,10 +446,13 @@ class _ScannerFullScreenState extends State<ScannerFullScreen> {
                 onPressed: () {
                   Navigator.of(context).pop('❌ Escaneo cancelado');
                 },
-                icon: const Icon(Icons.close),
-                label: const Text("Cancelar"),
+                icon: const Icon(Icons.close, color: Colors.white),
+                label: const Text(
+                  "Cancelar",
+                  style: TextStyle(color: Colors.white),
+                ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
+                  backgroundColor: kPrimaryColor,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 24,
                     vertical: 14,
