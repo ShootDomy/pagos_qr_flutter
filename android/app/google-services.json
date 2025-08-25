@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "630561092629",
+    "project_id": "pagos-qr-2da58",
+    "storage_bucket": "pagos-qr-2da58.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:630561092629:android:a801898b4296c833a60a1c",
+        "android_client_info": {
+          "package_name": "com.comercio.pagos_qr_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrJ2N4FD1xyUs3d26S6bovfd_Jwe55hTM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

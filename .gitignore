@@ -1,0 +1,40 @@
+# Flutter/Dart/Pub related
+.dart_tool/
+.packages
+.pub/
+build/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/AppFrameworkInfo.plist
+ios/Flutter/ephemeral/
+macos/Flutter/ephemeral/
+windows/flutter/ephemeral/
+linux/flutter/ephemeral/
+*.lock
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+
+# Environment files
+.env
+
+# Others
+*.log
+*.tmp
+*.swp
+*.DS_Store
+
+# Android
+android/.gradle/
+android/app/build/
+android/local.properties
+
+# Xcode
+ios/Pods/
+ios/.symlinks/
+ios/build/
+macos/Pods/
+macos/build/
