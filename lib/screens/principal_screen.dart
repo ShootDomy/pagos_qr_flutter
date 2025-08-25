@@ -84,6 +84,7 @@ class _ScannerFullScreenState extends State<ScannerFullScreen> {
         .where((c) => data[c] == null)
         .toList();
 
+    await _scannerController.stop();
     // Si faltan campos, cerramos primero y luego retornamos mensaje
     if (camposFaltantes.isNotEmpty) {
       if (mounted) {
