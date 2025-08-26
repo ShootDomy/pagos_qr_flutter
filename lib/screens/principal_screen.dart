@@ -396,7 +396,8 @@ class _ScannerFullScreenState extends State<ScannerFullScreen> {
       }
     } catch (e) {
       if (mounted) {
-        Navigator.of(context).pop('❌ Error al procesar el QR: ${e.toString()}');
+        final error = e.toString().replaceFirst('Exception: ', '');
+        Navigator.of(context).pop('❌ Error al procesar el QR: $error');
       }
     } finally {
       setState(() => _procesandoCodigo = false);
