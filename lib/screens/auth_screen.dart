@@ -82,6 +82,15 @@ class AuthScreenState extends State<AuthScreen> {
         );
       }
     } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Credenciales inválidas.'),
+            backgroundColor: kErrorColor, // Color de fondo
+            behavior: SnackBarBehavior.floating, // Opcional: para que flote
+          ),
+        );
+      }
       setState(() {
         _error = e.toString();
       });
@@ -194,8 +203,8 @@ class AuthScreenState extends State<AuthScreen> {
                 style: TextStyle(color: kTextColor),
               ),
               SizedBox(height: 24),
-              if (_error != null)
-                Text(_error!, style: TextStyle(color: kErrorColor)),
+              // if (_error != null)
+              //   Text(_error!, style: TextStyle(color: kErrorColor)),
               SizedBox(height: 8),
               SizedBox(
                 width: double.infinity,

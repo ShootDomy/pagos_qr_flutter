@@ -126,19 +126,47 @@ class _PrincipalScreenState extends State<PrincipalScreen> with RouteAware {
   }
 
   void _abrirScanner() async {
-    // Abrimos la pantalla del scanner y esperamos un mensaje de retorno
     final mensaje = await Navigator.of(context).push<String>(
       MaterialPageRoute(builder: (_) => const ScannerFullScreen()),
     );
 
-    // Mostramos el mensaje después de cerrar el scanner
+    // Mostramos el mensaje después de cerrar el scanner con formato personalizado
     if (mensaje != null && mensaje.isNotEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(mensaje)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            mensaje,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          backgroundColor: mensaje.startsWith('✅') ? Colors.green : kErrorColor,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          duration: const Duration(seconds: 3),
+        ),
+      );
     }
 
     await _obtenerCuentaUsuario();
+
+    // // Abrimos la pantalla del scanner y esperamos un mensaje de retorno
+    // final mensaje = await Navigator.of(context).push<String>(
+    //   MaterialPageRoute(builder: (_) => const ScannerFullScreen()),
+    // );
+
+    // // Mostramos el mensaje después de cerrar el scanner
+    // if (mensaje != null && mensaje.isNotEmpty) {
+    //   ScaffoldMessenger.of(
+    //     context,
+    //   ).showSnackBar(SnackBar(content: Text(mensaje)));
+    // }
+
+    // await _obtenerCuentaUsuario();
   }
 
   @override
@@ -369,9 +397,26 @@ class _ScannerFullScreenState extends State<ScannerFullScreen> {
     // Si faltan campos, cerramos primero y luego retornamos mensaje
     if (camposFaltantes.isNotEmpty) {
       if (mounted) {
-        Navigator.of(context).pop(
-          '❌ Error: el QR no contiene los campos: ${camposFaltantes.join(', ')}',
+        // Navigator.of(context).pop(
+        //   '❌ Error: el QR no contiene los campos: ${camposFaltantes.join(', ')}',
+        // );
+
+        final mensaje = await Navigator.of(context).push<String>(
+          MaterialPageRoute(builder: (_) => const ScannerFullScreen()),
         );
+
+        if (mensaje != null && mensaje.isNotEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(mensaje),
+              backgroundColor: kErrorColor,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          );
+        }
       }
       setState(() => _procesandoCodigo = false);
       return;
@@ -398,6 +443,14 @@ class _ScannerFullScreenState extends State<ScannerFullScreen> {
       if (mounted) {
         final error = e.toString().replaceFirst('Exception: ', '');
         Navigator.of(context).pop('❌ Error al procesar el QR: $error');
+
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(
+        //     content: Text('❌ Error al procesar el QR: $error'),
+        //     backgroundColor: kErrorColor, // Color de fondo
+        //     behavior: SnackBarBehavior.floating, // Opcional: para que flote
+        //   ),
+        // );
       }
     } finally {
       setState(() => _procesandoCodigo = false);
