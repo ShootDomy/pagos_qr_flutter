@@ -429,7 +429,7 @@ class _ScannerFullScreenState extends State<ScannerFullScreen> {
         traUuid: data['traUuid'],
         usuUuid: usuUuid,
         traMetodoPago: 'WALLET',
-        traAmount: data['traAmount'],
+        traAmount: data['traAmount'].toDouble(),
         tokenUsuario: tokenUsuario ?? '',
       );
 
