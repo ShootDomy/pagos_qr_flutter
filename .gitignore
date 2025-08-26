@@ -38,3 +38,5 @@ ios/.symlinks/
 ios/build/
 macos/Pods/
 macos/build/
+
+.flutter-plugins-dependencies
