@@ -2,7 +2,7 @@ class TransaccionRequest {
   final String traUuid;
   final String usuUuid;
   final String traMetodoPago;
-  final int traAmount;
+  final double traAmount;
   final String tokenUsuario;
 
   TransaccionRequest({
